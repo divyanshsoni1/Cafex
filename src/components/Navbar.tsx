@@ -9,9 +9,9 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
+    { name: "About", href: "/about" },
     { name: "Features", href: "/features" },
     { name: "Pricing", href: "/pricing" },
-    { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
 
@@ -19,7 +19,6 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-neutral-200 bg-white backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <span className="h-8 w-8 rounded-lg bg-amber-800 flex items-center justify-center text-white font-bold tracking-tight shadow-sm group-hover:bg-amber-900 transition-colors">
@@ -39,9 +38,9 @@ export default function Navbar() {
                   key={item.name}
                   href={item.href}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-amber-50 text-amber-900 font-semibold"
-                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                    isActive ?
+                      "bg-amber-50 text-amber-900 font-semibold"
+                    : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
                   }`}
                 >
                   {item.name}
@@ -67,11 +66,14 @@ export default function Navbar() {
               aria-expanded="false"
             >
               <span className="sr-only">Open main menu</span>
-              {isOpen ? (
-                <span className="text-xl block h-6 w-6 text-center leading-6">✕</span>
-              ) : (
-                <span className="text-xl block h-6 w-6 text-center leading-6">☰</span>
-              )}
+              {isOpen ?
+                <span className="text-xl block h-6 w-6 text-center leading-6">
+                  ✕
+                </span>
+              : <span className="text-xl block h-6 w-6 text-center leading-6">
+                  ☰
+                </span>
+              }
             </button>
           </div>
         </div>
@@ -79,7 +81,10 @@ export default function Navbar() {
 
       {/* Mobile Menu Panel Dropdown */}
       {isOpen && (
-        <div className="md:hidden border-b border-neutral-200 bg-white" id="mobile-menu">
+        <div
+          className="md:hidden border-b border-neutral-200 bg-white"
+          id="mobile-menu"
+        >
           <div className="space-y-1 px-2 pb-4 pt-2">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
@@ -89,9 +94,9 @@ export default function Navbar() {
                   href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={`block rounded-xl px-3 py-2.5 text-base font-medium transition-colors ${
-                    isActive
-                      ? "bg-amber-50 text-amber-900 font-bold"
-                      : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                    isActive ?
+                      "bg-amber-50 text-amber-900 font-bold"
+                    : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                   }`}
                 >
                   {item.name}
