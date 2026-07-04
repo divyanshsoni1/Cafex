@@ -12,4 +12,9 @@ const client = postgres(process.env.DATABASE_URL, {
   connect_timeout: 10 
 });
 
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
+const result = await client`SELECT current_database()`;
+console.log(result);
+
 export const db = drizzle(client, { schema });

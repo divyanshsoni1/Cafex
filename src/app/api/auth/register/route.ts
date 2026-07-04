@@ -40,14 +40,31 @@ export async function POST(req: Request) {
         email: users.email,
       });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: "User registered successfully",
-      user: newUser 
+      user: newUser
     }, { status: 201 });
 
   } catch (error) {
     console.error("REGISTRATION_API_ERROR:", error);
-    return NextResponse.json({ error: "Internal processing throttling" }, { status: 500 });
+
+    const tables = await db.execute(`
+  SELECT tablename
+  FROM pg_tables
+  WHERE schemaname = 'public'
+`);
+
+    console.log(tables);
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unknown error",
+      },
+      { status: 500 }
+    );
   }
 }
