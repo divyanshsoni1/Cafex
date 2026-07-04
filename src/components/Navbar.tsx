@@ -1,12 +1,14 @@
 "use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { LogOut, PlusCircle, User } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   const navItems = [
     { name: "About", href: "/about" },
@@ -14,6 +16,23 @@ export default function Navbar() {
     { name: "Pricing", href: "/pricing" },
     { name: "Contact", href: "/contact" },
   ];
+
+  const { data: session, status } = useSession();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 border-b border-neutral-200 bg-white backdrop-blur-md">
@@ -30,7 +49,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex ml-20 items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -49,11 +68,69 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Call To Action Buttons */}
-          <div className="hidden md:flex items-center gap-4">
-            <button className="rounded-xl bg-neutral-950 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 transition-all shadow-sm">
-              Get Started
-            </button>
+          {/* --- Right Side: Auth Conditional Section --- */}
+          <div className="flex items-center ml-40">
+            {status === "loading" ?
+              // Skeletons during session loading
+              <div className="h-10 w-24 animate-pulse rounded-xl bg-neutral-100" />
+            : !session?.user ?
+              // --- NOT LOGGED IN STATE (Your original button styled & linked) ---
+              <div className="pt-4 mt-2 border-t border-neutral-100 px-3">
+                <button
+                  onClick={() => signIn("google")} // explicit provider or empty for default routing
+                  className="w-full rounded-xl bg-neutral-900 px-5 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+                >
+                  Get Started
+                </button>
+              </div>
+              // --- LOGGED IN STATE (Profile Menu) ---
+            : <div
+                className="relative inline-block text-left"
+                ref={dropdownRef}
+              >
+                {/* Profile Avatar Trigger Button */}
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center justify-center h-10 w-10 rounded-full border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 transition-all focus:outline-none focus:ring-2 focus:ring-neutral-400 overflow-hidden"
+                >
+                   <User className="h-5 w-5 text-neutral-600" />
+                </button>
+
+                {/* Dropdown Menu Container */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-neutral-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5 z-50 transform opacity-100 scale-100 transition-all">
+                    {/* Meta Header */}
+                    <div className="px-3 py-2 border-b border-neutral-50 mb-1">
+                      <p className="text-sm font-semibold text-neutral-800 truncate">
+                        {session.user.name || "User"}
+                      </p>
+                      <p className="text-xs font-medium text-neutral-400 capitalize mt-0.5">
+                        {(session.user as any).role || "Member"}
+                      </p>
+                    </div>
+
+                    {/* Dropdown Options */}
+                    <div className="space-y-0.5">
+                      <a
+                        href="/add-cafe"
+                        className="flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
+                      >
+                        <PlusCircle className="h-4 w-4 text-neutral-500" />
+                        Add Your Cafe
+                      </a>
+
+                      <button
+                        onClick={() => signOut()}
+                        className="flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50/60 transition-colors"
+                      >
+                        <LogOut className="h-4 w-4 text-red-500" />
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            }
           </div>
 
           {/* Mobile Menu Button Control */}
