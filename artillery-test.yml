@@ -1,0 +1,31 @@
+config:
+  # The base URL of your Next.js application
+  target: "http://localhost:3000"
+  
+  # Define the traffic pattern phases
+  phases:
+    - duration: 60
+      arrivalRate: 1
+      rampTo: 10
+      name: "Warm-up Phase (Ramping up traffic)"
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 20
+      name: "Spike/Stress Phase (Heavy load)"
+
+  # Ensure the responses return successful HTTP status codes
+  plugins:
+    ensure: {}
+
+scenarios:
+  - name: "Standard User Journey"
+    flow:
+      # 1. Simulate a user visiting the homepage (tests SSR / static rendering)
+      - get:
+          url: "/"
+      # Add a realistic user delay (think time) in seconds
+      - think: 2 
+      
+      # 2. Simulate the browser fetching data from a Next.js API route
+      - get:
+          url: "/api/auth/register"
