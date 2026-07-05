@@ -20,22 +20,36 @@ export default function Navbar() {
 
   const { data: session, status } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  // const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+
+  const desktopDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        desktopDropdownRef.current &&
+        !desktopDropdownRef.current.contains(target)
       ) {
-        setIsDropdownOpen(false);
+        setIsDesktopDropdownOpen(false);
+      }
+
+      if (
+        mobileDropdownRef.current &&
+        !mobileDropdownRef.current.contains(target)
+      ) {
+        setIsMobileDropdownOpen(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -63,9 +77,9 @@ export default function Navbar() {
                   key={item.name}
                   href={item.href}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-amber-50 text-amber-900 font-semibold"
-                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                    isActive ?
+                      "bg-amber-50 text-amber-900 font-semibold"
+                    : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
                   }`}
                 >
                   {item.name}
@@ -75,31 +89,30 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Auth Section */}
-          <div className="hidden md:flex items-center mb-5 ml-40">
-            {status === "loading" ? (
+          <div className="hidden md:flex items-center ml-40">
+            {status === "loading" ?
               <div className="h-10 w-24 animate-pulse rounded-xl bg-neutral-100" />
-            ) : !session?.user ? (
+            : !session?.user ?
               <div className="pt-4 mt-2 border-neutral-100 px-3">
                 <button
                   onClick={() => router.push("/auth")}
-                  className="w-full rounded-xl bg-neutral-900 px-5 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+                  className="w-full mb-6 rounded-xl bg-neutral-900 px-5 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
                 >
                   Get Started
                 </button>
               </div>
-            ) : (
-              <div
+            : <div
                 className="md:block relative inline-block text-left"
-                ref={dropdownRef}
+                ref={desktopDropdownRef}
               >
                 <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  onClick={() => setIsDesktopDropdownOpen((prev) => !prev)}
                   className="flex items-center justify-center h-10 w-10 rounded-full border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 transition-all focus:outline-none focus:ring-2 focus:ring-neutral-400 overflow-hidden"
                 >
                   <User className="h-5 w-5 text-neutral-600" />
                 </button>
 
-                {isDropdownOpen && (
+                {isDesktopDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-neutral-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5 z-50">
                     <div className="px-3 py-2 border-b border-neutral-50 mb-1">
                       <p className="text-sm font-semibold text-neutral-800 truncate">
@@ -107,21 +120,28 @@ export default function Navbar() {
                       </p>
 
                       <p className="text-xs font-medium text-neutral-400 capitalize mt-0.5">
-                        {(session.user as any).role || "Member"}
+                        {(session.user as any).role || "MEMBER"}
                       </p>
                     </div>
 
                     <div className="space-y-0.5">
-                      <a
+                      <Link
                         href="/add-cafe"
                         className="flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
                       >
                         <PlusCircle className="h-4 w-4 text-neutral-500" />
                         Add Your Cafe
-                      </a>
+                      </Link>
 
                       <button
-                        onClick={() => signOut()}
+                        onClick={async () => {
+                          setIsDesktopDropdownOpen(false);
+                          setIsMobileDropdownOpen(false);
+
+                          await signOut({
+                            callbackUrl: "/",
+                          });
+                        }}
                         className="flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50/60 transition-colors"
                       >
                         <LogOut className="h-4 w-4 text-red-500" />
@@ -131,21 +151,21 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-            )}
+            }
           </div>
 
           {/* Mobile Right Side */}
           <div className="flex items-center gap-2 md:hidden">
             {session?.user && (
-              <div className="relative" ref={dropdownRef}>
+              <div className="relative" ref={mobileDropdownRef}>
                 <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  onClick={() => setIsMobileDropdownOpen((prev) => !prev)}
                   className="flex items-center justify-center h-10 w-10 rounded-full border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 transition-all overflow-hidden"
                 >
                   <User className="h-5 w-5 text-neutral-600" />
                 </button>
 
-                {isDropdownOpen && (
+                {isMobileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-neutral-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5 z-50">
                     <div className="px-3 py-2 border-b border-neutral-50 mb-1">
                       <p className="text-sm font-semibold text-neutral-800 truncate">
@@ -153,21 +173,28 @@ export default function Navbar() {
                       </p>
 
                       <p className="text-xs font-medium text-neutral-400 capitalize mt-0.5">
-                        {(session.user as any).role || "Member"}
+                        {(session.user as any).role || "MEMBER"}
                       </p>
                     </div>
 
                     <div className="space-y-0.5">
-                      <a
+                      <Link
                         href="/add-cafe"
                         className="flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
                       >
                         <PlusCircle className="h-4 w-4 text-neutral-500" />
                         Add Your Cafe
-                      </a>
+                      </Link>
 
                       <button
-                        onClick={() => signOut()}
+                        onClick={async () => {
+                          setIsDesktopDropdownOpen(false);
+                          setIsMobileDropdownOpen(false);
+
+                          await signOut({
+                            callbackUrl: "/",
+                          });
+                        }}
                         className="flex items-center gap-2.5 w-full px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50/60 transition-colors"
                       >
                         <LogOut className="h-4 w-4 text-red-500" />
@@ -185,15 +212,14 @@ export default function Navbar() {
               className="inline-flex items-center justify-center rounded-xl p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 focus:outline-none"
               aria-controls="mobile-menu"
             >
-              {isOpen ? (
+              {isOpen ?
                 <span className="text-xl block h-6 w-6 text-center leading-6">
                   ✕
                 </span>
-              ) : (
-                <span className="text-xl block h-6 w-6 text-center leading-6">
+              : <span className="text-xl block h-6 w-6 text-center leading-6">
                   ☰
                 </span>
-              )}
+              }
             </button>
           </div>
         </div>
@@ -215,9 +241,9 @@ export default function Navbar() {
                   href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={`block rounded-xl px-3 py-2.5 text-base font-medium transition-colors ${
-                    isActive
-                      ? "bg-amber-50 text-amber-900 font-bold"
-                      : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                    isActive ?
+                      "bg-amber-50 text-amber-900 font-bold"
+                    : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                   }`}
                 >
                   {item.name}
