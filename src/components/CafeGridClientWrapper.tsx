@@ -74,6 +74,10 @@ export default function CafeGridClientWrapper() {
     );
   }
 
+  const onCafeClick = (cafeId: string | number) => {
+    window.location.href = `/cafes/${cafeId}`;
+  }
+
   return (
     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {cafes.map((cafe) => {
@@ -91,10 +95,11 @@ export default function CafeGridClientWrapper() {
         return (
           <article
             key={cafe.id}
+            onClick={() => onCafeClick(cafe.id)}
             className="group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm hover:shadow-md transition-all duration-300"
           >
             {/* Image Section Wrapper */}
-            <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100 relative">
+            <div className="aspect-16/10 w-full overflow-hidden bg-neutral-100 relative">
               <img
                 src={
                   cafe.imageUrl ||

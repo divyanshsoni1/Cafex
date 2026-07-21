@@ -39,12 +39,12 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "CafeX",
-    url: "https://yourcafefinder.com",
+    url: "https://cafex-ten.vercel.app/",
     description:
       "A comprehensive directory to locate neighborhood cafes, evaluate food/drink menus, and view live active specials.",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://yourcafefinder.com/search?q={search_term_string}",
+      target: "https://cafex-ten.vercel.app",
       "query-input": "required name=search_term_string",
     },
   };

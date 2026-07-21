@@ -1,6 +1,6 @@
 config:
   # The base URL of your Next.js application
-  target: "http://localhost:3000"
+  target: "https://cafex-ten.vercel.app/"
   
   # Define the traffic pattern phases
   phases:
